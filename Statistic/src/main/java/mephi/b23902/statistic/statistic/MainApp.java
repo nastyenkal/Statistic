@@ -1,3 +1,5 @@
+package mephi.b23902.statistic.statistic;
+
 import controller.StatisticsController;
 import view.StatisticsView;
 

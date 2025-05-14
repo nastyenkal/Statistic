@@ -26,12 +26,12 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version> 
         </dependency>
-<!--        <dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
             <version>17.0.2</version>
         </dependency>
--->    </dependencies><!--
+    </dependencies>
     <build>
         <plugins>
             <plugin>
@@ -44,5 +44,5 @@
                 </configuration>
             </plugin>
         </plugins>
-    </build>-->
+    </build>
 </project>
