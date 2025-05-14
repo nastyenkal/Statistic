@@ -7,6 +7,7 @@ import model.StatisticsCalculator;
 import view.StatisticsView;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class StatisticsController {
     private final ExcelReader excelReader;
