@@ -2,62 +2,97 @@ package model;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 public class ExcelWriter {
+    
     public void writeStatisticsToExcel(String filePath, ExcelData excelData) throws IOException {
         try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Statistics");
+            createStatsSheets(workbook, excelData);
+            
+            try (FileOutputStream out = new FileOutputStream(filePath)) {
+                workbook.write(out);
+            }
+        }
+    }
 
-            // Создание стиля для заголовков
-            CellStyle headerStyle = workbook.createCellStyle();
-            Font headerFont = workbook.createFont();
-            headerFont.setBold(true);
-            headerStyle.setFont(headerFont);
-
+    private void createStatsSheets(Workbook workbook, ExcelData excelData) {
+        for (String sheetName : excelData.getSheetNames()) {
+            Sheet sheet = workbook.createSheet(sheetName);
             int rowNum = 0;
-            for (String sheetName : excelData.getCalculatedStatistics().keySet()) {
-                Map<String, Double> stats = excelData.getCalculatedStatistics().get(sheetName);
-
-                // Заголовок с именем листа
-                Row sheetNameRow = sheet.createRow(rowNum++);
-                Cell sheetNameCell = sheetNameRow.createCell(0);
-                sheetNameCell.setCellValue("Sheet: " + sheetName);
-                sheetNameCell.setCellStyle(headerStyle);
-
-                // Заголовки столбцов
-                Row headerRow = sheet.createRow(rowNum++);
-                Cell statNameHeader = headerRow.createCell(0);
-                statNameHeader.setCellValue("Statistic Name");
-                statNameHeader.setCellStyle(headerStyle);
-
-                Cell statValueHeader = headerRow.createCell(1);
-                statValueHeader.setCellValue("Value");
-                statValueHeader.setCellStyle(headerStyle);
-
-                // Данные статистики
-                for (Map.Entry<String, Double> entry : stats.entrySet()) {
-                    Row dataRow = sheet.createRow(rowNum++);
-                    dataRow.createCell(0).setCellValue(entry.getKey());
-                    dataRow.createCell(1).setCellValue(entry.getValue());
+            
+            // Заголовки
+            Row header = sheet.createRow(rowNum++);
+            header.createCell(0).setCellValue("Показатель");
+            
+            // Заголовки столбцов
+            Map<String, Double> stats = excelData.getCalculatedStatistics().get(sheetName);
+            List<String> columnNames = new ArrayList<>();
+            for (String key : stats.keySet()) {
+                if (key.contains(" - ")) {
+                    String colName = key.split(" - ")[0];
+                    if (!columnNames.contains(colName)) {
+                        columnNames.add(colName);
+                    }
                 }
-
-                // Пустая строка между листами
-                rowNum++;
             }
-
+            
+            // Создаем заголовки столбцов
+            for (int i = 0; i < columnNames.size(); i++) {
+                header.createCell(i + 1).setCellValue(columnNames.get(i));
+            }
+            
+            // Собираем уникальные показатели
+            Set<String> metrics = new LinkedHashSet<>();
+            for (String key : stats.keySet()) {
+                if (key.contains(" - ")) {
+                    metrics.add(key.split(" - ")[1]);
+                }
+            }
+            
+            // Записываем статистики
+            for (String metric : metrics) {
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(metric);
+                
+                for (int i = 0; i < columnNames.size(); i++) {
+                    String fullKey = columnNames.get(i) + " - " + metric;
+                    Double value = stats.get(fullKey);
+                    if (value != null) {
+                        row.createCell(i + 1).setCellValue(value);
+                    }
+                }
+            }
+            
+            // Добавляем матрицу ковариации
+            rowNum++;
+            Row covHeader = sheet.createRow(rowNum++);
+            covHeader.createCell(0).setCellValue("Матрица ковариации");
+            
+            double[][] covMatrix = excelData.getCovarianceMatrices().get(sheetName);
+            if (covMatrix != null) {
+                // Заголовки столбцов матрицы
+                Row matrixHeader = sheet.createRow(rowNum++);
+                matrixHeader.createCell(0).setCellValue("");
+                for (int i = 0; i < columnNames.size(); i++) {
+                    matrixHeader.createCell(i + 1).setCellValue(columnNames.get(i));
+                }
+                
+                // Данные матрицы
+                for (int i = 0; i < covMatrix.length; i++) {
+                    Row row = sheet.createRow(rowNum++);
+                    row.createCell(0).setCellValue(columnNames.get(i));
+                    for (int j = 0; j < covMatrix[i].length; j++) {
+                        row.createCell(j + 1).setCellValue(covMatrix[i][j]);
+                    }
+                }
+            }
+            
             // Автоподбор ширины столбцов
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < columnNames.size() + 1; i++) {
                 sheet.autoSizeColumn(i);
-            }
-
-            // Запись в файл
-            try (FileOutputStream fos = new FileOutputStream(filePath)) {
-                workbook.write(fos);
             }
         }
     }

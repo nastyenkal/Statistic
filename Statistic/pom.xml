@@ -26,11 +26,6 @@
             <artifactId>commons-math3</artifactId>
             <version>3.6.1</version> 
         </dependency>
-        <dependency>
-            <groupId>org.openjfx</groupId>
-            <artifactId>javafx-swing</artifactId>
-            <version>17.0.2</version>
-        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -39,10 +34,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
                     <source>23</source>
                     <target>23</target>
                 </configuration>
             </plugin>
         </plugins>
-    </build>
+</build>
 </project>
