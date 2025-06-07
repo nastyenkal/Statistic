@@ -5,7 +5,6 @@ import java.util.Map;
 
 public class ExcelData {
     private List<String> sheetNames;
-    // Изменено: для каждого листа храним map: название столбца -> данные столбца
     private Map<String, Map<String, List<Double>>> sheetData;
     private Map<String, Map<String, Double>> calculatedStatistics;
     private Map<String, double[][]> covarianceMatrices;
@@ -20,7 +19,6 @@ public class ExcelData {
         this.covarianceMatrices = covarianceMatrices;
     }
 
-    // Геттеры
     public List<String> getSheetNames() {
         return sheetNames;
     }
@@ -37,7 +35,6 @@ public class ExcelData {
         return covarianceMatrices;
     }
 
-    // Сеттеры
     public void setSheetNames(List<String> sheetNames) {
         this.sheetNames = sheetNames;
     }

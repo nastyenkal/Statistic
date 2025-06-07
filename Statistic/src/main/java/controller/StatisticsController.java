@@ -51,9 +51,7 @@ public class StatisticsController {
 
         try {
             System.out.println("Calculating statistics...");
-            // Теперь метод возвращает ExcelData вместо Map
             ExcelData resultData = statisticsCalculator.calculateStatistics(currentData);
-            // Обновляем текущие данные с рассчитанной статистикой
             currentData = resultData;
             System.out.println("Statistics calculated successfully");
 

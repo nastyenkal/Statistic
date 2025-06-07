@@ -23,11 +23,9 @@ public class ExcelWriter {
             Sheet sheet = workbook.createSheet(sheetName);
             int rowNum = 0;
             
-            // Заголовки
             Row header = sheet.createRow(rowNum++);
             header.createCell(0).setCellValue("Показатель");
             
-            // Заголовки столбцов
             Map<String, Double> stats = excelData.getCalculatedStatistics().get(sheetName);
             List<String> columnNames = new ArrayList<>();
             for (String key : stats.keySet()) {
@@ -39,12 +37,10 @@ public class ExcelWriter {
                 }
             }
             
-            // Создаем заголовки столбцов
             for (int i = 0; i < columnNames.size(); i++) {
                 header.createCell(i + 1).setCellValue(columnNames.get(i));
             }
             
-            // Собираем уникальные показатели
             Set<String> metrics = new LinkedHashSet<>();
             for (String key : stats.keySet()) {
                 if (key.contains(" - ")) {
@@ -52,7 +48,6 @@ public class ExcelWriter {
                 }
             }
             
-            // Записываем статистики
             for (String metric : metrics) {
                 Row row = sheet.createRow(rowNum++);
                 row.createCell(0).setCellValue(metric);
@@ -66,21 +61,18 @@ public class ExcelWriter {
                 }
             }
             
-            // Добавляем матрицу ковариации
             rowNum++;
             Row covHeader = sheet.createRow(rowNum++);
             covHeader.createCell(0).setCellValue("Матрица ковариации");
             
             double[][] covMatrix = excelData.getCovarianceMatrices().get(sheetName);
             if (covMatrix != null) {
-                // Заголовки столбцов матрицы
                 Row matrixHeader = sheet.createRow(rowNum++);
                 matrixHeader.createCell(0).setCellValue("");
                 for (int i = 0; i < columnNames.size(); i++) {
                     matrixHeader.createCell(i + 1).setCellValue(columnNames.get(i));
                 }
                 
-                // Данные матрицы
                 for (int i = 0; i < covMatrix.length; i++) {
                     Row row = sheet.createRow(rowNum++);
                     row.createCell(0).setCellValue(columnNames.get(i));
@@ -90,7 +82,6 @@ public class ExcelWriter {
                 }
             }
             
-            // Автоподбор ширины столбцов
             for (int i = 0; i < columnNames.size() + 1; i++) {
                 sheet.autoSizeColumn(i);
             }
