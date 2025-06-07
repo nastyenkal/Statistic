@@ -20,17 +20,14 @@ public class ExcelReader {
                 sheetNames.add(sheetName);
                 Map<String, List<Double>> columns = new LinkedHashMap<>();
                 
-                // Собираем названия столбцов из первой строки
                 Row headerRow = sheet.getRow(0);
                 if (headerRow == null) continue;
                 
-                // Создаем коллекции для каждого столбца
                 for (Cell cell : headerRow) {
                     String colName = getCellValueAsString(cell);
                     columns.put(colName, new ArrayList<>());
                 }
                 
-                // Заполняем данные по столбцам
                 for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                     Row row = sheet.getRow(i);
                     if (row == null) continue;

@@ -17,46 +17,35 @@ public class StatisticsCalculator {
             Map<String, List<Double>> columns = excelData.getSheetData().get(sheetName);
             Map<String, Double> sheetStats = new LinkedHashMap<>();
             
-            // Рассчитываем статистики для каждого столбца
             for (Map.Entry<String, List<Double>> columnEntry : columns.entrySet()) {
                 String columnName = columnEntry.getKey();
                 List<Double> sampleList = columnEntry.getValue();
                 double[] sample = sampleList.stream().mapToDouble(Double::doubleValue).toArray();
                 DescriptiveStatistics ds = new DescriptiveStatistics(sample);
 
-                // 1. Количество элементов
                 sheetStats.put(columnName + " - Количество элементов", (double) ds.getN());
 
-                // 2. Среднее арифметическое
                 sheetStats.put(columnName + " - Среднее арифметическое", ds.getMean());
 
-                // 3. Среднее геометрическое
                 sheetStats.put(columnName + " - Среднее геометрическое", calculateGeometricMean(sample));
 
-                // 4. Стандартное отклонение
                 sheetStats.put(columnName + " - Стандартное отклонение", ds.getStandardDeviation());
 
-                // 5. Размах
                 sheetStats.put(columnName + " - Размах", ds.getMax() - ds.getMin());
 
-                // 6. Коэффициент вариации
                 sheetStats.put(columnName + " - Коэффициент вариации", 
                     ds.getMean() != 0 ? ds.getStandardDeviation()/ds.getMean() : Double.NaN);
 
-                // 7. Дисперсия
                 sheetStats.put(columnName + " - Дисперсия", ds.getVariance());
 
-                // 8. Доверительный интервал
                 double[] ci = calculateConfidenceInterval(ds);
                 sheetStats.put(columnName + " - ДИ нижняя граница", ci[0]);
                 sheetStats.put(columnName + " - ДИ верхняя граница", ci[1]);
 
-                // 9. Минимум и максимум
                 sheetStats.put(columnName + " - Минимум", ds.getMin());
                 sheetStats.put(columnName + " - Максимум", ds.getMax());
             }
             
-            // 10. Ковариация между столбцами
             double[][] covMatrix = calculateCovarianceMatrix(columns);
             covariances.put(sheetName, covMatrix);
 
@@ -76,7 +65,6 @@ public class StatisticsCalculator {
             return Double.NaN;
         }
         
-        // Фильтрация положительных значений
         double[] positiveValues = Arrays.stream(data)
                                        .filter(value -> value > 0)
                                        .toArray();
@@ -110,14 +98,12 @@ public class StatisticsCalculator {
         int numColumns = columnData.size();
         double[][] matrix = new double[numColumns][numColumns];
         
-        // Преобразуем данные в массив
         double[][] data = new double[numColumns][];
         int index = 0;
         for (List<Double> col : columnData) {
             data[index++] = col.stream().mapToDouble(Double::doubleValue).toArray();
         }
         
-        // Рассчитываем ковариацию
         for (int i = 0; i < numColumns; i++) {
             for (int j = 0; j < numColumns; j++) {
                 matrix[i][j] = calculateCovariance(data[i], data[j]);
